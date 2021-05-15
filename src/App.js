@@ -89,19 +89,27 @@ const App = () => {
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
   });
+  
 
   return (
     <BrowserRouter>
-      <div className='app-background' ref={componentRef}>
-        <h1>Grocery Billing App</h1>
+      <div  className='app-background' ref={componentRef}>
+        <div className='add-item-input-new' id='hide'>Grocery Billing App</div>
         <div className='main-container'>
-          {person && <div>Hey <strong>{person.name.first}! from {person.location.city} </strong>Phone no: {person.phone} <br />Add your grocery items</div>}
+          {person && <div>Hey <strong>{person.name.first}! from {person.location.city} </strong> <br></br>Phone no: {person.phone} </div>}
+          <div className='add-item-input-new' id='hide'>  Add your grocery items</div>
           <div className='add-item-box'>
-            <input value={inputValue} onChange={(event) => setInputValue(event.target.value)} className='add-item-input' placeholder='Add an item' type='text' />
-            <input value={inputPrice} onChange={(event) => setInputPrice(event.target.value)} className='add-item-input' placeholder='Add price' type='number' />
-            <FontAwesomeIcon icon={faPlus} onClick={() => handleAddButtonClick()} />
+            <span className='input-change'>
+            <input  id='hide' value={inputValue} onChange={(event) => setInputValue(event.target.value)} className='add-item-input' placeholder='Add an item' type='text' />
+            </span>
+            <span className='input-change'>
+            <input id='hide' value={inputPrice} onChange={(event) => setInputPrice(event.target.value)} className='add-item-input' placeholder='Add price' type='number' />
+            </span>
+            <FontAwesomeIcon id='hide' icon={faPlus} onClick={() => handleAddButtonClick()} />
           </div>
+          
           <div className='item-list'>
+           
             {items.map((item, index) => (
               <div className='item-container'>
                 <div className='item-name' onClick={() => toggleComplete(index)}>
@@ -134,7 +142,7 @@ const App = () => {
           </div>
           <div className='total'>Total Items: {totalItemCount} Price: {totalPriceCount}</div><button>Print</button>
         </div>
-        <button onClick={handlePrint}>Print this out!</button>
+        <button id='hide' onClick={handlePrint}>Print this out!</button>
       </div>
     </BrowserRouter>
   );

@@ -1,21 +1,27 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef,PureComponent } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { useReactToPrint } from 'react-to-print';
 import './index.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight, faChevronLeft, faCircle, faCheckCircle, faPlus } from '@fortawesome/free-solid-svg-icons';
-
+import jsPDF from 'jspdf'
+import 'jspdf-autotable'
+ //...............................
+ 
+ 
+  
+//...............................
 const App = () => {
   const [items, setItems] = useState([
-    // { itemName: 'item 1', quantity: 1, isSelected: false },
-    // { itemName: 'item 2', quantity: 3, isSelected: true },
-    // { itemName: 'item 3', quantity: 2, isSelected: false },
+
   ]);
 
+ 
   const [inputValue, setInputValue] = useState('');
   const [totalItemCount, setTotalItemCount] = useState(0);
   const [inputPrice, setInputPrice] = useState('');
   const [totalPriceCount, setTotalPriceCount] = useState(0);
+  const[inputQuantity,setTotalQuantityCount]=useState('');
   const [person, setPerson] = useState(null);
 
   useEffect(() => {
@@ -27,13 +33,36 @@ const App = () => {
     };
     fetchData();
   }, []);
+   const jsPdfGenerator=()=>
+  {
+    var doc = new jsPDF('p','pt');
+    doc.text(250,100,'INVOICE');
+    doc.text(50,130,'BILL TO:')
+    doc.text(50,155,person.name.first)
+    doc.text(50,175,person.location.city)
 
+    var col1 = ["ITEM NAME", "PRICE","ITEM QUANTITY","TOTAL PRICE"];
+     var rows1 = [];
+   items.forEach(element => {      
+      console.log("nu");
+      console.log(element);
+        var temp1 = [element.itemName,element.price,element.quantity,element.price*element.quantity];
+       console.log(temp1);
+        rows1.push(temp1);
+
+    });    
+
+    doc.autoTable(col1, rows1, { startY: 200 }); 
+     doc.text(250,250+30*rows1.length,'TOTAL ITEM: '+totalItemCount);
+    doc.text(250,270+30*(rows1.length),'TOTAL PRICE: '+totalPriceCount);
+    doc.save('generated.pdf') 
+  }
   const handleAddButtonClick = () => {
     const newItem = {
       itemName: inputValue,
       price: inputPrice,
-      quantity: 0,
-      isSelected: false,
+      quantity: inputQuantity,
+      // isSelected: false,
     };
 
     const newItems = [...items, newItem];
@@ -41,8 +70,13 @@ const App = () => {
     setItems(newItems);
     setInputValue('');
     setInputPrice('');
-    calculateTotal();
+    setTotalQuantityCount('');
+    setTotalItemCount('');
+    
   };
+  useEffect(() => {
+    calculateTotal();
+  },[items]);
 
   const handleQuantityIncrease = (index) => {
     const newItems = [...items];
@@ -71,16 +105,18 @@ const App = () => {
   };
 
   const calculateTotal = () => {
-    const totalItemCount = items.reduce((total, item) => {
-      return total + item.quantity;
+    const totalItem = items.reduce((total, item) => {
+      let x= total + parseInt(item.quantity);
+     // console.log(x);
+      return x;
     }, 0);
 
     const totalPriceCount = items.reduce((total, item) => {
       return total + (item.price * item.quantity);
     }, 0);
+  console.log(totalItem)
 
-
-    setTotalItemCount(totalItemCount);
+    setTotalItemCount(totalItem);
     setTotalPriceCount(totalPriceCount);
   };
 
@@ -93,6 +129,7 @@ const App = () => {
 
   return (
     <BrowserRouter>
+    
       <div  className='app-background' ref={componentRef}>
         <div className='add-item-input-new' id='hide'>Grocery Billing App</div>
         <div className='main-container'>
@@ -100,10 +137,13 @@ const App = () => {
           <div className='add-item-input-new' id='hide'>  Add your grocery items</div>
           <div className='add-item-box'>
             <span className='input-change'>
-            <input  id='hide' value={inputValue} onChange={(event) => setInputValue(event.target.value)} className='add-item-input' placeholder='Add an item' type='text' />
+            <input  id='hide' value={inputValue} onChange={(event) => {setInputValue(event.target.value)}} className='add-item-input' placeholder='Add an item' type='text' />
             </span>
             <span className='input-change'>
             <input id='hide' value={inputPrice} onChange={(event) => setInputPrice(event.target.value)} className='add-item-input' placeholder='Add price' type='number' />
+            </span>
+            <span className='input-change'>
+            <input id='hide' value={inputQuantity} onChange={(event) => setTotalQuantityCount(event.target.value)} className='add-item-input' placeholder='Quantity' type='number' />
             </span>
             <FontAwesomeIcon id='hide' icon={faPlus} onClick={() => handleAddButtonClick()} />
           </div>
@@ -142,7 +182,7 @@ const App = () => {
           </div>
           <div className='total'>Total Items: {totalItemCount} Price: {totalPriceCount}</div><button>Print</button>
         </div>
-        <button id='hide' onClick={handlePrint}>Print this out!</button>
+        <button id='hide' onClick={jsPdfGenerator}>Print this out!</button>
       </div>
     </BrowserRouter>
   );
